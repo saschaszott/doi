@@ -1,0 +1,27 @@
+{
+  "name": "opus4-repo/opus4-doi",
+  "description": "OPUS 4 DOI support library",
+  "license": "GPL-2.0+",
+  "type": "library",
+  "keywords": [
+    "opus4", "doi"
+  ],
+  "homepage": "http://www.opus-repository.org",
+  "require-dev": {
+    "phpunit/phpunit": "4.8.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Opus\\Doi\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "OpusTest\\Doi\\": "test/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit --colors=always",
+    "test-coverage": "phpunit --colors=always --coverage-clover build/clover.xml"
+  }
+}
