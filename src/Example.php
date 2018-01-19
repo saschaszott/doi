@@ -40,5 +40,4 @@ class Example
     {
         return "Example";
     }
-
 }

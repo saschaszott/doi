@@ -39,10 +39,10 @@ use PHPUnit\Framework\TestCase;
 class ExampleTest extends TestCase
 {
 
-    public function testGetName() {
+    public function testGetName()
+    {
         $example = new Example();
 
         $this->assertEquals('Example', $example->getName());
     }
-
 }
