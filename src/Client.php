@@ -73,13 +73,6 @@ class Client {
         }
     }
 
-    private function log($message, $level = 'debug') {
-        if (is_null($this->log)) {
-            return; // do not log anything
-        }
-        $this->log->$level($message);
-    }
-
     /**
      * Registriert die übergebene DOI und weist ihr die Metadaten zu, die im übergebenen XML stehen.
      * Achtung: Es kann bis zu 24-72h dauern bis die DOI im Handle-System sichtbar und auflösbar ist.
@@ -87,17 +80,26 @@ class Client {
      * @param $doiValue
      * @param $xmlStr
      * @param $landingPageUrl
+     *
      * @throws ClientException
-     * @throws \Zend_Http_Client_Exception
      */
     public function registerDOI($doiValue, $xmlStr, $landingPageUrl) {
 
         // Schritt 1: Metadaten als XML registrieren
-        $client = new \Zend_Http_Client($this->serviceUrl . '/metadata');
-        $client->setAuth($this->username, $this->password);
+        $response = null;
+        $url = $this->serviceUrl . '/metadata';
+        try {
+            $client = new \Zend_Http_Client($url);
+            $client->setAuth($this->username, $this->password);
 
-        $client->setRawData($xmlStr, 'application/xml;charset=UTF-8');
-        $response = $client->request(\Zend_Http_Client::POST);
+            $client->setRawData($xmlStr, 'application/xml;charset=UTF-8');
+            $response = $client->request(\Zend_Http_Client::POST);
+        }
+        catch (\Exception $e) {
+            $message = 'request to ' . $url . ' failed with ' . $e->getMessage();
+            $this->log($message, 'err');
+            throw new ClientException($message);
+        }
 
         $this->log('DataCite response status code (expected 201): ' . $response->getStatus());
         $this->log('DataCite response body: ' . $response->getBody());
@@ -117,11 +119,19 @@ class Client {
 
         // Schritt 2: Register the DOI name
         // DOI und URL der Frontdoor des zugehörigen Dokuments übergeben
-        $client = new \Zend_Http_Client($this->serviceUrl . '/doi/' . $doiValue);
-        $client->setAuth($this->username, $this->password);
-        $data = "doi=$doiValue\nurl=" . $landingPageUrl;
-        $client->setRawData($data, 'text/plain;charset=UTF-8');
-        $response = $client->request(\Zend_Http_Client::PUT);
+        $url = $this->serviceUrl . '/doi/' . $doiValue;
+        try {
+            $client = new \Zend_Http_Client($url);
+            $client->setAuth($this->username, $this->password);
+            $data = "doi=$doiValue\nurl=" . $landingPageUrl;
+            $client->setRawData($data, 'text/plain;charset=UTF-8');
+            $response = $client->request(\Zend_Http_Client::PUT);
+        }
+        catch (\Exception $e) {
+            $message = 'request to ' . $url . ' failed with ' . $e->getMessage();
+            $this->log($message, 'err');
+            throw new ClientException($message);
+        }
 
         // Response Codes
         // 201 Created: operation successful
@@ -155,14 +165,26 @@ class Client {
      *
      * @param $doiValue
      * @param $landingPageURL
+     *
      * @return bool Methode liefert true zurück, wenn die DOI erfolgreich registiert wurde und die Prüfung positiv ausfällt.
-     * @throws \Zend_Exception
-     * @throws \Zend_Http_Client_Exception
+     *
+     * @throws ClientException
+     *
      */
     public function checkDOI($doiValue, $landingPageURL) {
-        $client = new \Zend_Http_Client($this->serviceUrl . '/doi/' . $doiValue);
-        $client->setAuth($this->username, $this->password);
-        $response = $client->request(\Zend_Http_Client::GET);
+        $response = null;
+        $url = $this->serviceUrl . '/doi/' . $doiValue;
+        try {
+            $client = new \Zend_Http_Client($url);
+            $client->setAuth($this->username, $this->password);
+            $response = $client->request(\Zend_Http_Client::GET);
+        }
+        catch (\Exception $e) {
+            $message = 'request to ' . $url . ' failed with ' . $e->getMessage();
+            $this->log($message, 'err');
+            throw new ClientException($message);
+        }
+
         $statusCode = $response->getStatus();
         // in $body steht die URL zur Frontdoor, die mit der DOI verknüpft wurde
         $body = $response->getBody();
@@ -184,17 +206,25 @@ class Client {
      *
      * @param $doiValue DOI für die die URL zur Landing-Page verändert werden soll
      * @param $newUrl URL der Landing-Page
+     *
      * @throws ClientException
-     * @throws \Zend_Exception
-     * @throws \Zend_Http_Client_Exception
      *
      */
     public function updateURLforDOI($doiValue, $newUrl) {
-        $client = new \Zend_Http_Client($this->serviceUrl . '/doi/' . $doiValue);
-        $client->setAuth($this->username, $this->password);
-        $data = "doi=$doiValue\nurl=$newUrl";
-        $client->setRawData($data, 'text/plain;charset=UTF-8');
-        $response = $client->request(\Zend_Http_Client::PUT);
+        $response = null;
+        $url = $this->serviceUrl . '/doi/' . $doiValue;
+        try {
+            $client = new \Zend_Http_Client($url);
+            $client->setAuth($this->username, $this->password);
+            $data = "doi=$doiValue\nurl=$newUrl";
+            $client->setRawData($data, 'text/plain;charset=UTF-8');
+            $response = $client->request(\Zend_Http_Client::PUT);
+        }
+        catch (\Exception $e) {
+            $message = 'request to ' . $url . ' failed with ' . $e->getMessage();
+            $this->log($message, 'err');
+            throw new ClientException($message);
+        }
 
         $this->log('DataCite response status code (expected 201): ' . $response->getStatus());
         $this->log('DataCite response body: ' . $response->getBody());
@@ -206,10 +236,26 @@ class Client {
         }
     }
 
+    /**
+     * Markiert den Datensatz zur übergebenen DOI als inaktiv.
+     *
+     * @param $doiValue
+     *
+     * @throws ClientException
+     */
     public function deleteMetadataForDoi($doiValue) {
-        $client = new \Zend_Http_Client($this->serviceUrl . '/metadata/' . $doiValue);
-        $client->setAuth($this->username, $this->password);
-        $response = $client->request(\Zend_Http_Client::DELETE);
+        $response = null;
+        $url = $this->serviceUrl . '/metadata/' . $doiValue;
+        try {
+            $client = new \Zend_Http_Client($url);
+            $client->setAuth($this->username, $this->password);
+            $response = $client->request(\Zend_Http_Client::DELETE);
+        }
+        catch (\Exception $e) {
+            $message = 'request to ' . $url . ' failed with ' . $e->getMessage();
+            $this->log($message, 'err');
+            throw new ClientException($message);
+        }
 
         $this->log('DataCite response status code (expected 200): ' . $response->getStatus());
 
@@ -219,4 +265,12 @@ class Client {
             throw new ClientException($message);
         }
     }
+
+    private function log($message, $level = 'debug') {
+        if (is_null($this->log)) {
+            return; // do not log anything
+        }
+        $this->log->$level($message);
+    }
+
 }

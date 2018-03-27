@@ -43,6 +43,8 @@ class ClientTest extends TestCase {
 
     const dataCitePassword = 'secret';
 
+    const sampleIpAddress = '192.0.2.1';
+
     public function testConstructorWithEmptyConfig() {
         $config = new \Zend_Config(array());
 
@@ -99,7 +101,7 @@ class ClientTest extends TestCase {
                     array('datacite' =>
                         array(
                             'username' => 'doe',
-                            'serviceUrl' => 'http://localhost')))));
+                            'serviceUrl' => 'http://' . self::sampleIpAddress)))));
 
         $exception = null;
         try {
@@ -119,7 +121,7 @@ class ClientTest extends TestCase {
                         array(
                             'username' => 'doe',
                             'password' => 'secret',
-                            'serviceUrl' => 'http://localhost')))));
+                            'serviceUrl' => 'http://' . self::sampleIpAddress)))));
 
         $exception = null;
         try {
@@ -140,7 +142,7 @@ class ClientTest extends TestCase {
                         array(
                             'username' => 'doe',
                             'password' => 'secret',
-                            'serviceUrl' => 'http://localhost')))));
+                            'serviceUrl' => 'http://' . self::sampleIpAddress)))));
 
         $client = new Client($config);
         $this->setExpectedException('Opus\Doi\ClientException');
@@ -191,7 +193,7 @@ class ClientTest extends TestCase {
                         array(
                             'username' => 'doe',
                             'password' => 'secret',
-                            'serviceUrl' => 'http://localhost')))));
+                            'serviceUrl' => 'http://' . self::sampleIpAddress)))));
 
         $client = new Client($config);
         $result = $client->checkDOI('10.5072/opustest-999', 'http://localhost/opus4/frontdoor/index/index/99');
@@ -227,7 +229,7 @@ class ClientTest extends TestCase {
                         array(
                             'username' => 'doe',
                             'password' => 'secret',
-                            'serviceUrl' => 'http://localhost')))));
+                            'serviceUrl' => 'http://' . self::sampleIpAddress)))));
 
         $client = new Client($config);
         $this->setExpectedException('Opus\Doi\ClientException');
@@ -261,7 +263,7 @@ class ClientTest extends TestCase {
                         array(
                             'username' => 'doe',
                             'password' => 'secret',
-                            'serviceUrl' => 'http://localhost')))));
+                            'serviceUrl' => 'http://' . self::sampleIpAddress)))));
 
         $client = new Client($config);
         $this->setExpectedException('Opus\Doi\ClientException');
