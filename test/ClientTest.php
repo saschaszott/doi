@@ -196,6 +196,7 @@ class ClientTest extends TestCase {
                             'serviceUrl' => 'http://' . self::sampleIpAddress)))));
 
         $client = new Client($config);
+        $this->setExpectedException('Opus\Doi\ClientException');
         $result = $client->checkDOI('10.5072/opustest-999', 'http://localhost/opus4/frontdoor/index/index/99');
         $this->assertFalse($result);
     }
