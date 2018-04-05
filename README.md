@@ -2,6 +2,7 @@
 
 DOI support library for OPUS 4.
 
+[![Build Status](https://travis-ci.org/saschaszott/doi.svg?branch=travisci-test)](https://travis-ci.org/saschaszott/doi)
 
 ## Testing
 
