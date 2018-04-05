@@ -9,6 +9,6 @@
   ],
   "script": "phpunit --configuration phpunit.xml",
   "group": "stable",
-  "dist": "precise",
+  "dist": "trusty",
   "os": "linux"
 }
